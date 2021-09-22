@@ -1,0 +1,277 @@
+<html>
+<head>
+<title>Treeview</title>
+
+<script language="JavaScript1.1">
+<!--
+
+var menuItems = new Array();
+var itemIndex = new Array();
+var sDir=self.location.href;
+var sThisDir=sDir.substring(0,sDir.lastIndexOf('/')+1);
+var curItemID = 0;
+
+function selectItem(name) {
+
+    for (var i = 0; i < itemIndex.length; i++) {
+	     if (menuItems[itemIndex[i]].name==name) {
+                 performActions(name);
+                 break;               
+             }
+    }
+}
+
+function addItem(item) {
+	var itemCount = this.items.length;
+	this.items[itemCount] = item;
+	if (this.imageType == "EPS") {
+            this.imageName = "eNodeOff.gif";
+	}
+	else if (this.imageType == "PROJECT") {
+            this.imageName = "pNodeOff.gif";
+	}
+	else {
+            this.imageName = "NodeOff.gif";
+	}
+}
+
+function show() {
+	this.isVisible = true;
+}
+
+
+function hide() {
+	this.isVisible = false;
+}
+
+function expand() {
+	for (var i = 0; i < this.items.length; i++) {
+		var item = this.items[i];
+		item.show();
+	}
+	this.isOn = true;
+	if (this.imageType == "EPS") {
+	    this.imageName="eNodeOn.gif";
+	}
+	else if (this.imageType == "PROJECT") {
+	    this.imageName="pNodeOn.gif";
+	}
+	else {
+	    this.imageName="NodeOn.gif";
+	}
+}
+
+
+function shrink() {
+	for (var i = 0; i < this.items.length; i++) {
+		var item = this.items[i];
+		if (item.items.length > 0) {
+			if (item.isOn) {
+				item.shrink();
+			}
+		}
+		item.hide();
+	}
+	this.isOn = false;
+
+	if (this.imageType == "EPS") {
+            this.imageName = "eNodeOff.gif";
+	}
+	else if (this.imageType == "PROJECT") {
+            this.imageName = "pNodeOff.gif";
+	}
+	else {
+            this.imageName = "NodeOff.gif";
+	}
+}
+
+
+function link() {
+	this.frame.location = this.hyperLink;
+}
+
+function menuItem(parent, name, text, hlink, frame, sbarmsg, assigned, type) {
+	this.parent = parent;
+	this.name = name;
+	this.imageType = type;
+	if (this.imageType == "EPS") {
+	    this.imageName="eNode.gif";
+	}
+	else if (this.imageType == "PROJECT") {
+	    this.imageName="pNode.gif";
+	}
+	else {
+	    this.imageName="node.gif";
+	}
+	this.imageWidth = 25;
+	this.imageHeight = 16;
+	this.text = text;
+	this.hyperLink = hlink;
+	this.frame = frame;
+	this.statusBarMessage = sbarmsg;
+
+	/* Indented */
+	this.chainPos = 0;
+	if (this.parent == "") {
+		this.isVisible = true;
+	}
+	else {
+		this.isVisible = false;
+		var temp = this;
+		while (temp.parent != "") {
+			this.chainPos++;
+			temp = menuItems[temp.parent];
+		}
+	}
+	this.isOn = false;
+	this.items = new Array();
+	this.addItem = addItem;
+	this.show = show;
+	this.hide = hide;
+	this.expand = expand;
+	this.shrink = shrink;
+	this.link = link;
+	var count = itemIndex.length;
+	itemIndex[count] = this.name;
+	menuItems[this.name] = this;
+	if (this.parent != "") {
+		menuItems[this.parent].addItem(this);
+	}
+}
+	
+function performActions(name) {
+	var item = menuItems[name];
+	curItemID = name;
+	parent.parent.DisplayArea.Options.CurrentObjectID = name;
+	if (item.items.length > 0) {  // Indicating this has sub menuItems
+		if (item.isOn) { item.shrink(); }
+		else { item.expand(); }
+	}
+
+	if (item.parent!="") {
+	    expandUpTree( item )
+	}
+
+	reloadWebPage();
+	if (item.hyperLink != "" ) {
+                item.hyperLink = "../"+parent.parent.DisplayArea.Options.CurrentDir+name+".htm";
+                item.link();
+        }
+}
+
+function expandUpTree( item ) {
+    var parent_item = menuItems[item.parent];
+    if ( parent_item.isOn == false ) {
+      parent_item.expand(); }
+    if (parent_item.parent!="") {
+         expandUpTree( parent_item ); }
+}
+
+
+function reloadWebPage() {
+	parent.tree.document.clear();
+	parent.tree.document.write("<HTML><HEAD>\n");
+	parent.tree.document.write("<style>\n");
+	parent.tree.document.write("<!..\n");
+	parent.tree.document.write("A {text-decoration: none}\n");
+	parent.tree.document.write("..>\n");
+	parent.tree.document.write("</style>\n");
+	parent.tree.document.write("</HEAD>\n");
+	parent.tree.document.write("<body bgcolor=#FFFFFF >\n");
+	parent.tree.document.write("<font face=arial size=4><b>WBS</b></font>");
+	parent.tree.document.write("<table border=0 width=100% height=100%><tr><td valign=top nowrap>");
+	parent.tree.document.write("<font face='Arial' size='-2'>\n");
+	for (var i = 0; i < itemIndex.length; i++) {
+		var item = menuItems[itemIndex[i]];
+		if (item.isVisible) {
+			for (var i2 = 0; i2 < item.chainPos; i2++) {
+				parent.tree.document.write("&nbsp; &nbsp; &nbsp; &nbsp; ");
+			}
+			parent.tree.document.write("<a href='javascript:parent.treedef.performActions(\"" + item.name + "\");' onMouseOver=\"self.status='';return true\">");
+			parent.tree.document.write("<img src='" + sThisDir + item.imageName + "' name='" + item.name + "' ");
+			parent.tree.document.write("width=" + item.imageWidth + " height=" + item.imageHeight+ " ");
+			parent.tree.document.write("border=0 align=top>");
+
+ 	        	if (curItemID == item.name) {
+   				parent.tree.document.write("<font color=#0000FF> " + item.text + "</font></a><br>\n");
+			}
+			else {
+   				parent.tree.document.write("<font color=#000000> " + item.text + "</font></a><br>\n");
+			}
+		}
+	}
+	parent.tree.document.write("</font>");
+	parent.tree.document.write("</td></tr><tr><td valign=bottom align=left>");
+	parent.tree.document.write("<font face=Arial size=-2>\n");
+	parent.tree.document.write("</td></tr></table>");
+	parent.tree.document.write("</BODY></HTML>\n");
+	parent.tree.document.close();
+	if (curItemID != null)
+        parent.tree.location.href = parent.tree.location.href + "#" + curItemID;
+}
+function setUp()
+{
+new menuItem("3680", "3684", "PROJECT KICKOFF", "./detail/3684.htm", parent.parent.DisplayArea.Content, "3684", "","WBS");
+new menuItem("3684", "3685", "MOBILIZATION EFFORTS", "./detail/3685.htm", parent.parent.DisplayArea.Content, "3685", "","WBS");
+new menuItem("3685", "3686", "SITE PREPARATIONS", "./detail/3686.htm", parent.parent.DisplayArea.Content, "3686", "","WBS");
+new menuItem("3686", "3687", "ROAD PREPARATIONS", "./detail/3687.htm", parent.parent.DisplayArea.Content, "3687", "","WBS");
+new menuItem("3687", "3688", "DRAINAGE & STREET LIGHTENING", "./detail/3688.htm", parent.parent.DisplayArea.Content, "3688", "","WBS");
+new menuItem("3688", "3689", "ADJUSTMENTS & DEMOB EFFORTS", "./detail/3689.htm", parent.parent.DisplayArea.Content, "3689", "","WBS");
+new menuItem("3689", "3690", "PROJECT CLOSURE & HANDOVER", "./detail/3690.htm", parent.parent.DisplayArea.Content, "3690", "","WBS");
+new menuItem("3697", "3698", "PROJECT KICKOFF", "./detail/3698.htm", parent.parent.DisplayArea.Content, "3698", "","WBS");
+new menuItem("3698", "3699", "MOBILIZATION EFFORTS", "./detail/3699.htm", parent.parent.DisplayArea.Content, "3699", "","WBS");
+new menuItem("3699", "3700", "SITE PREPARATION", "./detail/3700.htm", parent.parent.DisplayArea.Content, "3700", "","WBS");
+new menuItem("3700", "3701", "ROAD PREPARATION", "./detail/3701.htm", parent.parent.DisplayArea.Content, "3701", "","WBS");
+new menuItem("3701", "3702", "DRAINAGE AND STREET LIGHTING", "./detail/3702.htm", parent.parent.DisplayArea.Content, "3702", "","WBS");
+new menuItem("3702", "3703", "ADJUSTMENT AND DE-MOB EFFORTS", "./detail/3703.htm", parent.parent.DisplayArea.Content, "3703", "","WBS");
+new menuItem("3703", "3704", "PROJECT CLOSURE AND HANDOVER", "./detail/3704.htm", parent.parent.DisplayArea.Content, "3704", "","WBS");
+new menuItem("3706", "3707", "OUTAGE PROJECT 2019", "./detail/3707.htm", parent.parent.DisplayArea.Content, "3707", "","WBS");
+new menuItem("3707", "3708", "AUXILIARY UNIT", "./detail/3708.htm", parent.parent.DisplayArea.Content, "3708", "","WBS");
+new menuItem("3708", "3709", "PHASE 1", "./detail/3709.htm", parent.parent.DisplayArea.Content, "3709", "","WBS");
+new menuItem("3708", "3710", "PHASE 2", "./detail/3710.htm", parent.parent.DisplayArea.Content, "3710", "","WBS");
+new menuItem("3707", "3711", "BOILER UNIT", "./detail/3711.htm", parent.parent.DisplayArea.Content, "3711", "","WBS");
+new menuItem("3711", "3712", "PHASE 1", "./detail/3712.htm", parent.parent.DisplayArea.Content, "3712", "","WBS");
+new menuItem("3711", "3713", "PHASE 2", "./detail/3713.htm", parent.parent.DisplayArea.Content, "3713", "","WBS");
+new menuItem("3707", "3714", "TURBINE UNIT", "./detail/3714.htm", parent.parent.DisplayArea.Content, "3714", "","WBS");
+new menuItem("3714", "3715", "PHASE 1", "./detail/3715.htm", parent.parent.DisplayArea.Content, "3715", "","WBS");
+new menuItem("3715", "3716", "REMOVAL", "./detail/3716.htm", parent.parent.DisplayArea.Content, "3716", "","WBS");
+new menuItem("3715", "3717", "INSPECTION", "./detail/3717.htm", parent.parent.DisplayArea.Content, "3717", "","WBS");
+new menuItem("3714", "3718", "PHASE 2", "./detail/3718.htm", parent.parent.DisplayArea.Content, "3718", "","WBS");
+new menuItem("3718", "3719", "CLEAN AND REPAIR", "./detail/3719.htm", parent.parent.DisplayArea.Content, "3719", "","WBS");
+new menuItem("3720", "3721", "Registration and login page", "./detail/3721.htm", parent.parent.DisplayArea.Content, "3721", "","WBS");
+new menuItem("3720", "3722", "Student's portal", "./detail/3722.htm", parent.parent.DisplayArea.Content, "3722", "","WBS");
+new menuItem("3720", "3723", "Trainers portal", "./detail/3723.htm", parent.parent.DisplayArea.Content, "3723", "","WBS");
+new menuItem("3720", "3725", "Interactive forum", "./detail/3725.htm", parent.parent.DisplayArea.Content, "3725", "","WBS");
+new menuItem("3720", "3726", "Admin portal", "./detail/3726.htm", parent.parent.DisplayArea.Content, "3726", "","WBS");
+new menuItem("3720", "3728", "Testing", "./detail/3728.htm", parent.parent.DisplayArea.Content, "3728", "","WBS");
+new menuItem("3728", "3729", "Finishing students portal", "./detail/3729.htm", parent.parent.DisplayArea.Content, "3729", "","WBS");
+new menuItem("3728", "3730", "Finishing trainers portal", "./detail/3730.htm", parent.parent.DisplayArea.Content, "3730", "","WBS");
+new menuItem("3728", "3732", "Finishing admin portal", "./detail/3732.htm", parent.parent.DisplayArea.Content, "3732", "","WBS");
+new menuItem("3728", "3733", "Bug testing, and performance tests", "./detail/3733.htm", parent.parent.DisplayArea.Content, "3733", "","WBS");
+new menuItem("3728", "3734", "Optimization and initial release", "./detail/3734.htm", parent.parent.DisplayArea.Content, "3734", "","WBS");
+new menuItem("3728", "3736", "Redirecting domain to firebase", "./detail/3736.htm", parent.parent.DisplayArea.Content, "3736", "","WBS");
+new menuItem("", "3742", "PLUGSTUCK CONNECT V1", "./detail/3742.htm", parent.parent.DisplayArea.Content, "3742", "","PROJECT");
+new menuItem("3742", "3743", "Front End Design", "./detail/3743.htm", parent.parent.DisplayArea.Content, "3743", "","WBS");
+new menuItem("3742", "3744", "Front End Development", "./detail/3744.htm", parent.parent.DisplayArea.Content, "3744", "","WBS");
+new menuItem("3742", "3745", "Back End Development", "./detail/3745.htm", parent.parent.DisplayArea.Content, "3745", "","WBS");
+new menuItem("3742", "3746", "Admin Interface Development", "./detail/3746.htm", parent.parent.DisplayArea.Content, "3746", "","WBS");
+new menuItem("3742", "3748", "Project Completion And Close Out", "./detail/3748.htm", parent.parent.DisplayArea.Content, "3748", "","WBS");
+ }
+
+
+//-->
+
+</script>
+</head>
+
+<body bgcolor="#FFFFFF" text="#FFFFFF">
+
+<script language="JavaScript1.1">
+<!--
+  setUp();
+  reloadWebPage();
+//-->
+</script>
+
+</body>
+</html>

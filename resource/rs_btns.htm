@@ -1,0 +1,40 @@
+<HTML>
+<HEAD>
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=utf-8" />
+<SCRIPT LANGUAGE=JAVASCRIPT>
+var CurrentObjID = 0;
+var CurrentDir   = 'rsrcdetl/';
+var sDir  = self.location.href;
+var myDir = sDir.substring(0,sDir.lastIndexOf('/')+1);
+
+function ShowRsrcIndex()
+{
+ parent.Content.location.href=myDir+"rsrcdetl/0.htm";
+}
+function ShowRsrcDetail()
+{
+ CurrentDir = "rsrcdetl/";
+ ShowCurrentObj();
+}
+function ShowRsrcActivities()
+{ 
+ CurrentDir = "activity/";
+ ShowCurrentObj();
+}
+function ShowCurrentObj()
+{
+ if(CurrentObjID!=-1)
+  parent.Content.location.href=myDir+CurrentDir+CurrentObjID+".htm";
+ else
+  parent.Content.location.href=myDir+"rs_blank.htm";
+}
+</SCRIPT>
+</HEAD>
+
+<BODY onLoad="parent.Loaded=true;">
+<TABLE BORDER=0>
+ <TR>
+  <TD WIDTH=150><A HREF='javascript:ShowRsrcDetail()'>Resource Details</A></TD>
+</TABLE></BODY>
+
+</HTML>

@@ -1,0 +1,21 @@
+﻿<HTML>
+
+<HEAD>
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=utf-8" />
+<SCRIPT LANGUAGE=JAVASCRIPT>
+function Notify()
+{
+ if (top.MainArea.DisplayArea.Loaded)
+ {
+  top.MainArea.DisplayArea.Options.CurrentObjID=parent.Tree.document.TreeViewer.getCurrentID();
+  top.MainArea.DisplayArea.Options.ShowCurrentObj();
+ }
+ self.location.href="empty.htm";
+}
+</SCRIPT>
+</HEAD>
+
+<BODY onLoad="Notify()">
+</BODY>
+
+</HTML>
